@@ -1,0 +1,1 @@
+Need a way of storing ROM and loading it into memory.

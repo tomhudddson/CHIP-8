@@ -139,10 +139,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Chip8.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
+    <None Include="test_roms\test.ch8" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Chip8.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="src\Plan.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
