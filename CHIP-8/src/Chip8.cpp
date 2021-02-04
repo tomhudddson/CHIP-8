@@ -8,6 +8,7 @@ Chip8::Chip8()
 {
     LoadCharacterSet();
     LoadROM();
+    LoadFunctionPointerTable();
     pc = C8_START_ADDR;
 }
 
@@ -48,18 +49,51 @@ void Chip8::LoadCharacterSet()
     }
 }
 
+void Chip8::LoadFunctionPointerTable()
+{
+    optable[0x0] = &Chip8::Table0;  
+    optable[0x1] = &Chip8::OP_1nnn;
+    optable[0x2] = &Chip8::OP_2nnn;
+    
+
+    optable0[0x0] = &Chip8::OP_00E0;
+    optable0[0xE] = &Chip8::OP_00EE;
+}
+
+void Chip8::Table0()
+{
+    ((*this).*(optable0[opcode & 0x000Fu]))();
+}
+
+void Chip8::Table8()
+{
+    ((*this).*(optable8[opcode & 0x000Fu]))();
+}
+
+void Chip8::TableE()
+{
+    ((*this).*(optableE[opcode & 0x000Fu]))();
+}
+
+void Chip8::TableF()
+{
+    ((*this).*(optable0[opcode & 0x00FFu]))();
+}
+
 void Chip8::Cycle()
 {
     // Fetch next instruction from memory.
     opcode = (mem[pc] << 8) | mem[pc + 1];
 
-    // Increment program counter by 4 bytes so it is at the next address 
+    // Increment program counter by 2 bytes so it is at the next address 
     // before executing the next instruction.
     pc += 2;
 
-    // Execute instruction. For now this uses a switch statement, eventually
-    // it will use function pointers and arrays.
-    ExecuteOpcode();
+    // In optable, only the first digit of the opcode is required to identify
+    // the opcode. Therefore decode the first figit and call the relevant 
+    // function optable.
+    uint16_t index = (opcode & 0xF000u) >> 12u;
+    ((*this).*(optable[index]))();
 
     // Decrement delay timer and sound timer if they are set.
     if (delayTimer > 0)
@@ -67,24 +101,6 @@ void Chip8::Cycle()
 
     if (soundTimer > 0)
         --soundTimer;
-}
-
-void Chip8::ExecuteOpcode()
-{
-    switch (opcode)
-    {
-    case C8_OP_00E0:
-        OP_00E0();
-        break;
-    case C8_OP_00EE:
-        OP_00EE();
-        break;
-    case C8_OP_2nnn:
-        OP_2nnn();
-        break;
-    default:
-        std::cout << "Did not recongnise that opcode!" << std::endl;
-    }
 }
 
 /* This function clears the display by setting all values in the display array
@@ -234,3 +250,7 @@ void Chip8::OP_Fx65()
 {
 }
 
+void Chip8::OP_Null()
+{
+    
+}
