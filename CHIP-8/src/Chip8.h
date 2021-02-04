@@ -6,10 +6,12 @@
 #define C8_CHARSET_START_ADDR 0x00  // char set start address in memory
 #define C8_CHARSET_END_ADDR   0x4F  // 0x50 chars in set, so max is 1 byte less
 
-#define C8_DISPLAY_SZ 64 * 32
+
 
 #define C8_START_ADDR         0x200 // accessible memory starts here
 
+#define C8_DISPLAY_WIDTH  64  // width of display in pixels
+#define C8_DISPLAY_HEIGHT 32  // height of display in pixels
 
 class Chip8
 {
@@ -59,7 +61,7 @@ private:
 
     /* The original display contained a 64x32-pixel layout on a monochrome
     display. */
-    uint8_t display[C8_DISPLAY_SZ]{};
+    uint32_t display[C8_DISPLAY_WIDTH * C8_DISPLAY_HEIGHT]{};
 
     /* All instructions are 2 bytes long and are stored MSB first. In memory,
     the first byte of each instruction is located at an even address. If a

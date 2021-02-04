@@ -117,8 +117,7 @@ void Chip8::Cycle()
     // In optable, only the first digit of the opcode is required to identify
     // the opcode. Therefore decode the first figit and call the relevant 
     // function optable.
-    uint16_t index = (opcode & 0xF000u) >> 12u;
-    ((*this).*(optable[index]))();
+    ((*this).*(optable[(opcode & 0xF000u) >> 12u]))();
 
     // Decrement delay timer and sound timer if they are set.
     if (delayTimer > 0)
@@ -132,27 +131,29 @@ void Chip8::Cycle()
 to 0. */
 void Chip8::OP_00E0()
 {   
-    std::cout << "OP_00EO executed" << std::endl;
     memset(display, 0, sizeof(display));
 }
 
+/* This function returns from a subroutine by setting the program counter to 
+the top of the stack, then decrementing the stack pointer. */
 void Chip8::OP_00EE()
 {
-    std::cout << "OP_00EE executed" << std::endl;
-
 }
 
+/* This function jumps to an address, nnn, by setting the program counter to 
+nnn. */
 void Chip8::OP_1nnn()
 {
+    pc = opcode & 0x0FFFu;
 }
 
-/* This function calls a subroutine by incrementing the stack pointer, putting 
-the current PC on top of the the stack, and setting the PC to nnn. */
+/* This function calls a subroutine by setting the current program counter to 
+the top of the stack, incrementing the stack pointer, then setting the opcode
+to nnn. */
 void Chip8::OP_2nnn()
 {
-    std::cout << "OP_1nnn executed" << std::endl;
     stack[sp++] = pc;
-    pc = opcode & 0xFFFu;
+    pc = opcode & 0x0FFFu;
 }
 
 void Chip8::OP_3xkk()
@@ -167,12 +168,17 @@ void Chip8::OP_5xy0()
 {
 }
 
+/* This function stores the value of kk into the register Vx. */
 void Chip8::OP_6xkk()
 {
+    regs[(opcode & 0x0F00u) >> 8] = opcode & 0xFFu;
 }
 
+/* This function stores the value of Vx + kk ino the register Vx. */
 void Chip8::OP_7xkk()
 {
+    uint8_t regindex = (opcode & 0x0F00u) >> 8;
+    regs[regindex] = regs[regindex] + (opcode & 0x00FFu);
 }
 
 void Chip8::OP_8xy0()
@@ -215,8 +221,10 @@ void Chip8::OP_9xy0()
 {
 }
 
+/* This function stores the value nnn into the register I. */
 void Chip8::OP_Annn()
 {
+    I = opcode & 0x0FFFu;
 }
 
 void Chip8::OP_Bnnn()
@@ -227,8 +235,49 @@ void Chip8::OP_Cxkk()
 {
 }
 
+/* This is the draw function. */
 void Chip8::OP_Dxyn()
 {
+    // Get x and y coordinates where the sprite will be drawn from Vx and Vy.
+    uint16_t x = regs[(opcode & 0x0F00u) >> 8];
+    uint16_t y = regs[(opcode & 0x00F0u) >> 4];
+    uint16_t height = opcode & 0x000Fu;
+
+    // Modulo coordinates to ensure they wrap.
+    x %= C8_DISPLAY_WIDTH;
+    y %= C8_DISPLAY_HEIGHT;
+
+    // Clear VF.
+    regs[0xF] = 0;
+
+    for (uint_fast16_t row = 0; row < height; row++)
+    {
+        uint8_t sprdat = mem[I + row];
+        
+        for (uint_fast8_t col = 0; col < 8; col++)
+        {
+            // Shift a 1 through the word starting at MSB and finishing at LSB
+            // to target each bit once during this loop. 
+            uint8_t sprpix = sprdat & (0x80 >> col);  
+
+            // Find the pixel in the display of the sprite pixel.
+            uint32_t* dispix = &display[(row + x) * C8_DISPLAY_HEIGHT 
+                                          + (col * y)];
+
+            if (sprpix)
+            {
+                if (*dispix == 0xFFFFFFFF)
+                {
+                    // This pixel is already on, so there is a collision.
+                    regs[0xF] = 1;
+                }
+
+                // Since the sprite pixel is on here, we can simply XOR the 
+                // display pixel 0xFFFFFFFF to toggle it.
+                *dispix ^= 0xFFFFFFFF;
+            } 
+        }
+    }
 }
 
 void Chip8::OP_Ex9E()
