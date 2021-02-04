@@ -16,7 +16,7 @@ Chip8::Chip8()
 void Chip8::LoadROM()
 {
     // Open the file as a stream of binary and move the file pointer to the end
-    std::ifstream file("test_roms/test.ch8", std::ios::binary | std::ios::ate);
+    std::ifstream file("test_roms/IBM Logo.ch8", std::ios::binary | std::ios::ate);
 
     if (file.is_open())
     {
@@ -131,6 +131,7 @@ void Chip8::Cycle()
 to 0. */
 void Chip8::OP_00E0()
 {   
+    std::cout << "OP_00E0 called" << std::endl;
     memset(display, 0, sizeof(display));
 }
 
@@ -144,6 +145,7 @@ void Chip8::OP_00EE()
 nnn. */
 void Chip8::OP_1nnn()
 {
+    std::cout << "OP_1nnn called" << std::endl;
     pc = opcode & 0x0FFFu;
 }
 
@@ -152,6 +154,7 @@ the top of the stack, incrementing the stack pointer, then setting the opcode
 to nnn. */
 void Chip8::OP_2nnn()
 {
+    std::cout << "OP_2nnn called" << std::endl;
     stack[sp++] = pc;
     pc = opcode & 0x0FFFu;
 }
@@ -171,12 +174,14 @@ void Chip8::OP_5xy0()
 /* This function stores the value of kk into the register Vx. */
 void Chip8::OP_6xkk()
 {
+    std::cout << "OP_6xkk called" << std::endl;
     regs[(opcode & 0x0F00u) >> 8] = opcode & 0xFFu;
 }
 
 /* This function stores the value of Vx + kk ino the register Vx. */
 void Chip8::OP_7xkk()
 {
+    std::cout << "OP_7xkk called" << std::endl;
     uint8_t regindex = (opcode & 0x0F00u) >> 8;
     regs[regindex] = regs[regindex] + (opcode & 0x00FFu);
 }
@@ -224,6 +229,7 @@ void Chip8::OP_9xy0()
 /* This function stores the value nnn into the register I. */
 void Chip8::OP_Annn()
 {
+    std::cout << "OP_00E0 called" << std::endl;
     I = opcode & 0x0FFFu;
 }
 
@@ -238,6 +244,7 @@ void Chip8::OP_Cxkk()
 /* This is the draw function. */
 void Chip8::OP_Dxyn()
 {
+    std::cout << "OP_Dxyn called" << std::endl;
     // Get x and y coordinates where the sprite will be drawn from Vx and Vy.
     uint16_t x = regs[(opcode & 0x0F00u) >> 8];
     uint16_t y = regs[(opcode & 0x00F0u) >> 4];
@@ -258,15 +265,16 @@ void Chip8::OP_Dxyn()
         {
             // Shift a 1 through the word starting at MSB and finishing at LSB
             // to target each bit once during this loop. 
-            uint8_t sprpix = sprdat & (0x80 >> col);  
+            uint8_t sprByte = sprdat & (0x80 >> col);  
 
             // Find the pixel in the display of the sprite pixel.
-            uint32_t* dispix = &display[(row + x) * C8_DISPLAY_HEIGHT 
-                                          + (col * y)];
+            // uint32_t* displayByte = &display[(row + y) * C8_DISPLAY_HEIGHT 
+            //                              + (col * y)];
+            uint32_t* displayByte = &display[x + col + (y + row) * 64];
 
-            if (sprpix)
+            if (displayByte)
             {
-                if (*dispix == 0xFFFFFFFF)
+                if (*displayByte == 0xFFFFFFFF)
                 {
                     // This pixel is already on, so there is a collision.
                     regs[0xF] = 1;
@@ -274,7 +282,7 @@ void Chip8::OP_Dxyn()
 
                 // Since the sprite pixel is on here, we can simply XOR the 
                 // display pixel 0xFFFFFFFF to toggle it.
-                *dispix ^= 0xFFFFFFFF;
+                *displayByte ^= 0xFFFFFFFF;
             } 
         }
     }
@@ -326,5 +334,5 @@ void Chip8::OP_Fx65()
 
 void Chip8::OP_Null()
 {
-    
+    std::cout << "OP_Null called" << std::endl;
 }

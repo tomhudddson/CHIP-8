@@ -20,6 +20,8 @@ public:
 
     void Cycle();
 
+    uint32_t* GetDisplay() { return display; }
+
 private:
     /* Chip-8 is capable of accessing up to 4096 bytes of RAM from 0x000 to
     0xFFF. The first 512 bytes, 0x000 to 0x1FF, is where the original
