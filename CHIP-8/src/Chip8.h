@@ -127,10 +127,10 @@ private:
 
     /* Opcode functions for opcodes where the first digit digit is E and the 
     last two digits are unique. */
-    void OP_Ex9E();  // SKP Vx - skip next instruction if key with value Vx is
-                     //   pressed
     void OP_ExA1();  // SKNP Vx - skip next instruction if the key with the 
                      //   value Vx is not pressed.
+    void OP_Ex9E();  // SKP Vx - skip next instruction if key with value Vx is
+                     //   pressed
 
     /* Opcode functions for opcodes where the first digit is F and the last two
     digits are unique. */

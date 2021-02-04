@@ -54,10 +54,35 @@ void Chip8::LoadFunctionPointerTable()
     optable[0x0] = &Chip8::Table0;  
     optable[0x1] = &Chip8::OP_1nnn;
     optable[0x2] = &Chip8::OP_2nnn;
-    
+    optable[0x3] = &Chip8::OP_3xkk;
+    optable[0x4] = &Chip8::OP_4xkk;
+    optable[0x5] = &Chip8::OP_5xy0;
+    optable[0x6] = &Chip8::OP_6xkk;
+    optable[0x7] = &Chip8::OP_7xkk;
+    optable[0x8] = &Chip8::Table8;
+    optable[0x9] = &Chip8::OP_9xy0;
+    optable[0xA] = &Chip8::OP_Annn;
+    optable[0xB] = &Chip8::OP_Bnnn;
+    optable[0xC] = &Chip8::OP_Cxkk;
+    optable[0xD] = &Chip8::OP_Dxyn;
+    optable[0xE] = &Chip8::TableE;
+    optable[0xF] = &Chip8::TableF;
 
     optable0[0x0] = &Chip8::OP_00E0;
     optable0[0xE] = &Chip8::OP_00EE;
+
+    optableE[0x1] = &Chip8::OP_ExA1;
+    optableE[0xE] = &Chip8::OP_Ex9E;
+
+    optableF[0x07] = &Chip8::OP_Fx07;
+    optableF[0x0A] = &Chip8::OP_Fx0A;
+    optableF[0x15] = &Chip8::OP_Fx15;
+    optableF[0x1E] = &Chip8::OP_Fx1E;
+    optableF[0x18] = &Chip8::OP_Fx18;
+    optableF[0x29] = &Chip8::OP_Fx29;
+    optableF[0x33] = &Chip8::OP_Fx33;
+    optableF[0x55] = &Chip8::OP_Fx55;
+    optableF[0x65] = &Chip8::OP_Fx65;
 }
 
 void Chip8::Table0()
